@@ -1,0 +1,20 @@
+# Netlify-Deployment für die Vite-App
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Single-Page-App: alle Pfade auf index.html zurückführen
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Lange Cache-Zeiten für gehashte Build-Assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

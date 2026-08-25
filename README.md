@@ -53,6 +53,25 @@ npm run build
 npm run preview
 ```
 
+## Deployment (Netlify)
+
+Das Projekt ist für **Netlify** vorbereitet (siehe [`netlify.toml`](netlify.toml)):
+Build-Command `npm run build`, Publish-Verzeichnis `dist`, SPA-Fallback auf
+`index.html` und Node 20.
+
+**Variante A – Git-Anbindung (empfohlen):** In Netlify „Add new site → Import an
+existing project" wählen, dieses GitHub-Repo verbinden. Build-Command und
+Publish-Verzeichnis werden aus `netlify.toml` übernommen. Jeder Push auf `main`
+deployt automatisch.
+
+**Variante B – Netlify CLI:**
+
+```bash
+npm i -g netlify-cli
+npm run build
+netlify deploy --prod --dir=dist
+```
+
 ## Technik
 
 - **Vite** (Dev-Server & Build), **Vanilla JS**, **CSS-Variablen**.
