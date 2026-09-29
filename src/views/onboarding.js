@@ -2,6 +2,7 @@
 
 import { el } from '../helpers.js';
 import { setGarderobe, setOnboarded } from '../settings.js';
+import { t as tr } from '../i18n.js';
 import illuShopping from '../assets/undraw_shopping_a55o.svg';
 import illuBags from '../assets/undraw_shopping-bags_nfsf.svg';
 import avatarMale from '../assets/undraw_cool-guy-avatar_qjc4.svg';
@@ -27,24 +28,24 @@ export function onboardingView(onDone) {
   function renderIntro() {
     root.replaceChildren(
       el('div', { class: 'onb-illu' }, [el('img', { src: illuShopping, alt: '' })]),
-      el('h2', { class: 'onb-title' }, 'Digitalisier deinen Kleiderschrank und erhalte Outfit-Vorschläge'),
+      el('h2', { class: 'onb-title' }, tr('Digitalisier deinen Kleiderschrank und erhalte Outfit-Vorschläge')),
       el('div', { class: 'onb-spacer' }),
       dots(0),
-      el('button', { class: 'primary onb-cta', onclick: () => { step = 1; render(); } }, 'Weiter'),
+      el('button', { class: 'primary onb-cta', onclick: () => { step = 1; render(); } }, tr('Weiter')),
     );
   }
 
   function renderGarderobe() {
     root.replaceChildren(
       el('div', { class: 'onb-illu' }, [el('img', { src: illuBags, alt: '' })]),
-      el('h2', { class: 'onb-title' }, 'Enthält dein Kleiderschrank eher Teile aus der Herren- oder aus der Damengarderobe?'),
+      el('h2', { class: 'onb-title' }, tr('Enthält dein Kleiderschrank eher Teile aus der Herren- oder aus der Damengarderobe?')),
       el('div', { class: 'onb-choices' },
         CHOICES.map((c) => el('button', { class: 'onb-choice', onclick: () => finish(c) }, [
           el('span', { class: 'onb-choice-av' }, c.avatars.map((src) => el('img', { class: 'onb-av', src, alt: '' }))),
-          el('span', { class: 'onb-choice-label' }, c.label),
+          el('span', { class: 'onb-choice-label' }, tr(c.label)),
         ]))
       ),
-      el('p', { class: 'onb-hint muted small' }, 'Auswahl kann später geändert werden.'),
+      el('p', { class: 'onb-hint muted small' }, tr('Auswahl kann später geändert werden.')),
       el('div', { class: 'onb-spacer' }),
       dots(1),
     );

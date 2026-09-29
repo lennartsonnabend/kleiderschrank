@@ -4,6 +4,7 @@ const KEY_GARDEROBE = 'ks-garderobe';   // 'male' | 'female' (Baum-Variante)
 const KEY_LABEL = 'ks-garderobe-label'; // Anzeige: 'Herrengarderobe' | 'Damengarderobe' | 'Gemischt'
 const KEY_ONBOARD = 'ks-onboarded';
 const KEY_TEMP = 'ks-temp-unit';        // 'C' | 'F'
+const KEY_LANG = 'ks-lang';
 const KEY_SHOW_WEATHER = 'ks-show-weather';
 const KEY_WETTER_VORSCHLAEGE = 'ks-wetter-vorschlaege';
 
@@ -43,3 +44,6 @@ export function setOnboarded(v = true) {
     else localStorage.removeItem(KEY_ONBOARD);
   } catch { /* ignore */ }
 }
+
+export function getLang() { try { return localStorage.getItem(KEY_LANG) || 'de'; } catch { return 'de'; } }
+export function setLang(v) { try { localStorage.setItem(KEY_LANG, v); } catch { /* ignore */ } }

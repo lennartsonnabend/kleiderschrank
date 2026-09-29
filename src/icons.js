@@ -73,6 +73,12 @@ const SVG = {
     '<svg viewBox="0 0 24 24" width="1em" height="1em"><rect x="5" y="2.8" width="14" height="18.4" rx="1.6" fill="currentColor"/><g stroke="#fff" stroke-width="1.3" stroke-linecap="round"><line x1="12" y1="4.4" x2="12" y2="19.6"/><line x1="10.1" y1="10.6" x2="10.1" y2="13"/><line x1="13.9" y1="10.6" x2="13.9" y2="13"/></g></svg>',
   calendarFill:
     '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="3.5" y="5.5" width="17" height="15" rx="2.2" stroke="none"/><line x1="8" y1="3" x2="8" y2="6.5"/><line x1="16" y1="3" x2="16" y2="6.5"/></svg>',
+  // Deutschland-Flagge (Schwarz-Rot-Gold)
+  flagDE:
+    '<svg viewBox="0 0 60 40" width="1.5em" height="1em"><clipPath id="fde"><rect width="60" height="40" rx="6"/></clipPath><g clip-path="url(#fde)"><rect width="60" height="13.34" y="0" fill="#000"/><rect width="60" height="13.34" y="13.34" fill="#DD0000"/><rect width="60" height="13.34" y="26.68" fill="#FFCE00"/></g></svg>',
+  // Vereinigtes Königreich (Union Jack, vereinfacht)
+  flagEN:
+    '<svg viewBox="0 0 60 40" width="1.5em" height="1em"><clipPath id="fen"><rect width="60" height="40" rx="6"/></clipPath><g clip-path="url(#fen)"><rect width="60" height="40" fill="#012169"/><g stroke="#fff" stroke-width="8"><path d="M0 0 60 40"/><path d="M60 0 0 40"/></g><g stroke="#C8102E" stroke-width="3.5"><path d="M0 0 60 40"/><path d="M60 0 0 40"/></g><rect x="25" width="10" height="40" fill="#fff"/><rect y="15" width="60" height="10" fill="#fff"/><rect x="27" width="6" height="40" fill="#C8102E"/><rect y="17" width="60" height="6" fill="#C8102E"/></g></svg>',
 };
 
 export function icon(name, cls = '') {

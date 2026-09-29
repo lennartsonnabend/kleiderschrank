@@ -5,6 +5,7 @@ import { getAllGarments, putGarment, deleteGarment } from '../db.js';
 import { KATEGORIE_TREE_FEMALE, KATEGORIE_TREE_MALE } from '../kategorien.js';
 import { icon } from '../icons.js';
 import { mountTagForm, tagStateFromGarment, garmentPatch, istVollstaendig } from '../tagForm.js';
+import { t as tr } from '../i18n.js';
 
 const TOP_ORDER = KATEGORIE_TREE_FEMALE.map((n) => n.label);
 const cap = (str) => str.charAt(0).toUpperCase() + str.slice(1);
@@ -21,7 +22,7 @@ function topLevelOf(g) {
 
 export function wardrobeView(rerender, goTo) {
   const root = el('div', { class: 'view' });
-  root.appendChild(el('h2', {}, 'Mein Kleiderschrank'));
+  root.appendChild(el('h2', {}, tr('Mein Kleiderschrank')));
 
   const pillBar = el('div', { class: 'pill-bar scroll' });
   const grid = el('div', { class: 'pick-grid' });
@@ -29,7 +30,7 @@ export function wardrobeView(rerender, goTo) {
   root.appendChild(pillBar);
   root.appendChild(grid);
   root.appendChild(el('div', { class: 'fab-spacer' }));
-  root.appendChild(el('button', { class: 'fab with-icon', onclick: () => goTo('hinzufuegen') }, [icon('plus'), 'Hinzufügen']));
+  root.appendChild(el('button', { class: 'fab with-icon', onclick: () => goTo('hinzufuegen') }, [icon('plus'), tr('Hinzufügen')]));
   root.appendChild(modalHost);
 
   let filter = 'alles';
@@ -55,7 +56,7 @@ export function wardrobeView(rerender, goTo) {
         el('button', {
           class: 'pill' + (filter === p ? ' active' : ''),
           onclick: () => { filter = (filter === p && p !== 'alles') ? 'alles' : p; renderPills(); renderGrid(); },
-        }, p === 'alles' ? 'Alles' : p)
+        }, p === 'alles' ? tr('Alles') : tr(p))
       );
     }
   }
@@ -65,8 +66,8 @@ export function wardrobeView(rerender, goTo) {
     if (!garments.length) {
       grid.appendChild(
         el('p', { class: 'muted' }, [
-          'Noch keine Kleidungsstücke. ',
-          el('a', { href: '#', onclick: (e) => (e.preventDefault(), goTo('hinzufuegen')) }, 'Jetzt eins hinzufügen →'),
+          tr('Noch keine Kleidungsstücke. '),
+          el('a', { href: '#', onclick: (e) => (e.preventDefault(), goTo('hinzufuegen')) }, tr('Jetzt eins hinzufügen →')),
         ])
       );
       return;
@@ -85,12 +86,12 @@ export function wardrobeView(rerender, goTo) {
   // Detail-Overlay beim Antippen (wie das Kalender-Popup): Bild + Bearbeiten/Löschen + ×
   function showDetail(g) {
     const card = el('div', { class: 'overlay-card', onclick: (e) => e.stopPropagation() }, [
-      el('button', { class: 'overlay-close', title: 'Schließen', onclick: closeModal }, [icon('close')]),
-      el('div', { class: 'overlay-titel' }, g.name || 'Kleidungsstück'),
+      el('button', { class: 'overlay-close', title: tr('Schließen'), onclick: closeModal }, [icon('close')]),
+      el('div', { class: 'overlay-titel' }, g.name || tr('Kleidungsstück')),
       el('img', { src: blobUrl(g.bild), class: 'detail-img', alt: g.name || '' }),
       el('div', { class: 'overlay-aktionen' }, [
-        el('button', { class: 'with-icon', onclick: () => openEdit(g) }, [icon('edit'), 'Bearbeiten']),
-        el('button', { class: 'with-icon danger-btn', onclick: () => remove(g) }, [icon('trash'), 'Löschen']),
+        el('button', { class: 'with-icon', onclick: () => openEdit(g) }, [icon('edit'), tr('Bearbeiten')]),
+        el('button', { class: 'with-icon danger-btn', onclick: () => remove(g) }, [icon('trash'), tr('Löschen')]),
       ]),
     ]);
     modalHost.replaceChildren(el('div', { class: 'overlay-backdrop', onclick: closeModal }, [card]));
@@ -104,15 +105,15 @@ export function wardrobeView(rerender, goTo) {
     const saveBtn = el('button', {
       class: 'primary with-icon',
       onclick: async () => { await putGarment({ ...g, ...garmentPatch(st) }); closeModal(); load(); },
-    }, [icon('check'), 'Speichern']);
+    }, [icon('check'), tr('Speichern')]);
     const updateSave = () => { saveBtn.disabled = !istVollstaendig(st); };
 
     const modalCard = el('div', { class: 'overlay-card edit-modal', onclick: (e) => e.stopPropagation() }, [
-      el('button', { class: 'overlay-close', title: 'Schließen', onclick: closeModal }, [icon('close')]),
-      el('div', { class: 'overlay-titel' }, 'Kleidungsstück bearbeiten'),
+      el('button', { class: 'overlay-close', title: tr('Schließen'), onclick: closeModal }, [icon('close')]),
+      el('div', { class: 'overlay-titel' }, tr('Kleidungsstück bearbeiten')),
       el('div', { class: 'preview' }, [el('img', { src: blobUrl(g.bild), class: 'preview-img', alt: g.name || '' })]),
       formHost,
-      el('div', { class: 'row' }, [saveBtn, el('button', { onclick: closeModal }, 'Abbrechen')]),
+      el('div', { class: 'row' }, [saveBtn, el('button', { onclick: closeModal }, tr('Abbrechen'))]),
     ]);
     mountTagForm(formHost, st, updateSave);
     updateSave();
@@ -127,8 +128,8 @@ export function wardrobeView(rerender, goTo) {
   }
 
   async function remove(g) {
-    const name = g.name || 'dieses Kleidungsstück';
-    if (!confirm(`Möchten Sie „${name}" wirklich löschen?`)) return;
+    const name = g.name || tr('dieses Kleidungsstück');
+    if (!confirm(tr('Möchten Sie „{0}" wirklich löschen?', name))) return;
     await deleteGarment(g.id);
     closeModal();
     load();

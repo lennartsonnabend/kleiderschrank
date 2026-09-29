@@ -3,6 +3,7 @@
 
 import { el } from '../helpers.js';
 import { icon } from '../icons.js';
+import { t as tr } from '../i18n.js';
 import {
   getGarderobe, getGarderobeLabel, setGarderobe,
   getTempUnit, setTempUnit,
@@ -25,8 +26,8 @@ export function settingsView(rerender, goTo) {
 
     root.appendChild(
       el('div', { class: 'view-header' }, [
-        el('button', { class: 'profil-btn back', title: 'Zurück', onclick: () => goTo('kalender') }, [icon('back')]),
-        el('h2', {}, 'Einstellungen'),
+        el('button', { class: 'profil-btn back', title: tr('Zurück'), onclick: () => goTo('kalender') }, [icon('back')]),
+        el('h2', {}, tr('Einstellungen')),
         el('span', { class: 'profil-spacer' }),
       ])
     );
@@ -56,16 +57,16 @@ export function settingsView(rerender, goTo) {
     // --- Sonstiges ---
     root.appendChild(sektion('Sonstiges', [
       el('button', { class: 'set-action', onclick: () => { setOnboarded(false); rerender(); } },
-        [icon('refresh'), 'Einführung erneut ansehen']),
+        [icon('refresh'), tr('Einführung erneut ansehen')]),
     ]));
 
-    root.appendChild(el('p', { class: 'muted small set-fuss' }, 'Alle Daten bleiben lokal auf deinem Gerät.'));
+    root.appendChild(el('p', { class: 'muted small set-fuss' }, tr('Alle Daten bleiben lokal auf deinem Gerät.')));
   }
 
   // ---- Bausteine ----
   function sektion(titel, rows) {
     return el('div', { class: 'set-section' }, [
-      el('div', { class: 'set-section-titel' }, titel),
+      el('div', { class: 'set-section-titel' }, tr(titel)),
       el('div', { class: 'set-card' }, rows),
     ]);
   }
@@ -73,8 +74,8 @@ export function settingsView(rerender, goTo) {
   function settingRow(label, hint, control, vertikal = false) {
     return el('div', { class: 'set-row' + (vertikal ? ' vertikal' : '') }, [
       el('div', { class: 'set-info' }, [
-        el('span', { class: 'set-label' }, label),
-        hint ? el('span', { class: 'set-hint muted small' }, hint) : null,
+        el('span', { class: 'set-label' }, tr(label)),
+        hint ? el('span', { class: 'set-hint muted small' }, tr(hint)) : null,
       ].filter(Boolean)),
       control,
     ]);
@@ -82,7 +83,7 @@ export function settingsView(rerender, goTo) {
 
   function segmented(labels, active, onSelect) {
     return el('div', { class: 'seg' }, labels.map((l) =>
-      el('button', { class: 'seg-item' + (l === active ? ' active' : ''), onclick: () => onSelect(l) }, l)
+      el('button', { class: 'seg-item' + (l === active ? ' active' : ''), onclick: () => onSelect(l) }, tr(l))
     ));
   }
 

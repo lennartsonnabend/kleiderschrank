@@ -3,6 +3,7 @@
 // bestehen/verwerfen, Scoring = feste Punktzahlen (max. 100).
 
 import { grobkategorieFor } from './kategorien.js';
+import { t as tr } from './i18n.js';
 
 // --- Ausgabekategorien -> erlaubte Formalitätsstufen (Abschnitt 3) ---
 export const OUTFIT_TYPEN = {
@@ -298,8 +299,8 @@ export function bewerteOutfitDetail(items) {
   }
   if (!has('SCHUHE')) fehlt.push('Schuhe');
   const ganzKonflikt = hatGanz && (has('OBERTEIL') || has('UNTERTEIL'));
-  if (fehlt.length) hinweise.push('Es fehlt noch: ' + fehlt.join(', ') + '.');
-  if (ganzKonflikt) hinweise.push('Ein Kleid/Jumpsuit ersetzt Ober- und Unterteil – kombiniere es nicht zusätzlich.');
+  if (fehlt.length) hinweise.push(tr('Es fehlt noch:') + ' ' + fehlt.map(tr).join(', ') + '.');
+  if (ganzKonflikt) hinweise.push(tr('Ein Kleid/Jumpsuit ersetzt Ober- und Unterteil – kombiniere es nicht zusätzlich.'));
 
   const stufen = [...new Set(items.map(formalOf).filter(Boolean))];
   const farbharmonie = farbHarmonie(items);
@@ -315,14 +316,14 @@ export function bewerteOutfitDetail(items) {
   const score = farbharmonie + formalitaet + muster + wetter;
 
   if (items.length >= 2 && farbharmonie <= 12) {
-    hinweise.push('Die Farben harmonieren nicht ideal – neutrale Töne (Schwarz, Weiß, Grau, Beige, Marineblau) lassen sich leichter kombinieren.');
+    hinweise.push(tr('Die Farben harmonieren nicht ideal – neutrale Töne (Schwarz, Weiß, Grau, Beige, Marineblau) lassen sich leichter kombinieren.'));
   }
   const gemCount = items.filter((g) => !SCHLICHT.includes(musterOf(g))).length;
-  if (gemCount >= 2) hinweise.push('Mehrere Muster wirken unruhig – kombiniere höchstens ein auffälliges Muster.');
+  if (gemCount >= 2) hinweise.push(tr('Mehrere Muster wirken unruhig – kombiniere höchstens ein auffälliges Muster.'));
   if (stufen.length > 1 && (Math.max(...stufen) - Math.min(...stufen)) >= 2) {
-    hinweise.push('Die Teile passen vom Anlass her nicht zusammen (z. B. sportlich mit festlich).');
+    hinweise.push(tr('Die Teile passen vom Anlass her nicht zusammen (z. B. sportlich mit festlich).'));
   }
-  if (waermen.length > 1) hinweise.push('Die Teile sind für unterschiedliches Wetter gedacht.');
+  if (waermen.length > 1) hinweise.push(tr('Die Teile sind für unterschiedliches Wetter gedacht.'));
 
   let verdikt;
   if (fehlt.length || ganzKonflikt) verdikt = 'unvollständig';

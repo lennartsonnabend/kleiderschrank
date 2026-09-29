@@ -12,6 +12,7 @@ import {
 } from '../db.js';
 import { outfitTile } from '../outfitTile.js';
 import { icon } from '../icons.js';
+import { t as tr } from '../i18n.js';
 
 const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 const MONATE = [
@@ -71,16 +72,16 @@ export function calendarView(rerender, goTo, params = {}) {
     root.replaceChildren();
     root.appendChild(
       el('div', { class: 'view-header' }, [
-        el('h2', {}, 'Kalender'),
-        el('button', { class: 'profil-btn', title: 'Einstellungen', onclick: () => goTo('einstellungen') }, [icon('user')]),
+        el('h2', {}, tr('Kalender')),
+        el('button', { class: 'profil-btn', title: tr('Einstellungen'), onclick: () => goTo('einstellungen') }, [icon('user')]),
       ])
     );
 
     if (pending()) {
       root.appendChild(
         el('div', { class: 'hint' }, [
-          (s.pendingLookId ? 'Look' : 'Outfit') + ' ausgewählt – klick auf einen Tag, um es einzuplanen. ',
-          el('button', { class: 'link', onclick: () => { s.pendingOutfitId = null; s.pendingLookId = null; render(); } }, 'Abbrechen'),
+          tr(s.pendingLookId ? 'Look ausgewählt – klick auf einen Tag, um es einzuplanen.' : 'Outfit ausgewählt – klick auf einen Tag, um es einzuplanen.') + ' ',
+          el('button', { class: 'link', onclick: () => { s.pendingOutfitId = null; s.pendingLookId = null; render(); } }, tr('Abbrechen')),
         ])
       );
     }
@@ -88,13 +89,13 @@ export function calendarView(rerender, goTo, params = {}) {
     root.appendChild(
       el('div', { class: 'row cal-nav' }, [
         el('button', { onclick: () => shift(-1) }, '‹'),
-        el('strong', {}, `${MONATE[s.month]} ${s.year}`),
+        el('strong', {}, `${tr(MONATE[s.month])} ${s.year}`),
         el('button', { onclick: () => shift(1) }, '›'),
       ])
     );
 
     const head = el('div', { class: 'cal-grid' });
-    for (const w of WOCHENTAGE) head.appendChild(el('div', { class: 'cal-head' }, w));
+    for (const w of WOCHENTAGE) head.appendChild(el('div', { class: 'cal-head' }, tr(w)));
 
     const first = new Date(s.year, s.month, 1);
     const startOffset = (first.getDay() + 6) % 7;
@@ -141,10 +142,10 @@ export function calendarView(rerender, goTo, params = {}) {
     const outfit = entry ? s.outfits[entry.outfitId] : null;
     const look = lookFor(entry);
     const [y, m, d] = s.enlarged.split('-');
-    const titel = `${Number(d)}. ${MONATE[Number(m) - 1]} ${y}`;
+    const titel = `${Number(d)}. ${tr(MONATE[Number(m) - 1])} ${y}`;
 
     const card = el('div', { class: 'overlay-card', onclick: (e) => e.stopPropagation() });
-    card.appendChild(el('button', { class: 'overlay-close', title: 'Schließen', onclick: schliessen }, [icon('close')]));
+    card.appendChild(el('button', { class: 'overlay-close', title: tr('Schließen'), onclick: schliessen }, [icon('close')]));
     card.appendChild(el('div', { class: 'overlay-titel' }, titel));
 
     // Look: Foto groß + Löschen (kein Bearbeiten)
@@ -152,7 +153,7 @@ export function calendarView(rerender, goTo, params = {}) {
       card.appendChild(el('img', { src: blobUrl(look.bild), class: 'look-big', alt: '' }));
       card.appendChild(
         el('div', { class: 'overlay-aktionen' }, [
-          el('button', { class: 'with-icon danger-btn', onclick: () => loeschen() }, [icon('trash'), 'Löschen']),
+          el('button', { class: 'with-icon danger-btn', onclick: () => loeschen() }, [icon('trash'), tr('Löschen')]),
         ])
       );
       return el('div', { class: 'overlay-backdrop', onclick: schliessen }, [card]);
@@ -162,13 +163,13 @@ export function calendarView(rerender, goTo, params = {}) {
       card.appendChild(outfitTile(garmentsFor(outfit), { big: true }));
       card.appendChild(
         el('div', { class: 'overlay-aktionen' }, [
-          el('button', { class: 'with-icon', onclick: () => startEdit(outfit) }, [icon('edit'), 'Bearbeiten']),
-          el('button', { class: 'with-icon danger-btn', onclick: () => loeschen() }, [icon('trash'), 'Löschen']),
+          el('button', { class: 'with-icon', onclick: () => startEdit(outfit) }, [icon('edit'), tr('Bearbeiten')]),
+          el('button', { class: 'with-icon danger-btn', onclick: () => loeschen() }, [icon('trash'), tr('Löschen')]),
         ])
       );
     } else {
       // Bearbeiten: Teile an-/abwählen
-      card.appendChild(el('div', { class: 'muted small' }, 'Teile antippen zum Hinzufügen/Entfernen.'));
+      card.appendChild(el('div', { class: 'muted small' }, tr('Teile antippen zum Hinzufügen/Entfernen.')));
       const gallery = el('div', { class: 'pick-grid' });
       for (const g of Object.values(s.garments)) {
         const sel = s.editSel.has(g.id);
@@ -185,8 +186,8 @@ export function calendarView(rerender, goTo, params = {}) {
       card.appendChild(outfitTile(teile, { big: true }));
       card.appendChild(
         el('div', { class: 'overlay-aktionen' }, [
-          el('button', { class: 'primary', onclick: () => speichernEdit(outfit) }, '✔ Speichern'),
-          el('button', { class: 'link', onclick: () => { s.editing = false; s.editSel = null; render(); } }, 'Abbrechen'),
+          el('button', { class: 'primary', onclick: () => speichernEdit(outfit) }, tr('✔ Speichern')),
+          el('button', { class: 'link', onclick: () => { s.editing = false; s.editSel = null; render(); } }, tr('Abbrechen')),
         ])
       );
     }

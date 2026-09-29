@@ -11,6 +11,7 @@ import { putGarment, makeId } from '../db.js';
 import { nearestFarbe } from '../palette.js';
 import { icon } from '../icons.js';
 import { mountTagForm, garmentPatch, istVollstaendig } from '../tagForm.js';
+import { t as tr } from '../i18n.js';
 
 export function addItemView(rerender, goTo) {
   const root = el('div', { class: 'view' });
@@ -68,7 +69,7 @@ export function addItemView(rerender, goTo) {
   // ---------- Render-Dispatch ----------
   function render() {
     root.replaceChildren();
-    root.appendChild(el('h2', {}, 'Kleidungsstück hinzufügen'));
+    root.appendChild(el('h2', {}, tr('Kleidungsstück hinzufügen')));
 
     if (s.stage === 'idle' || s.stage === 'processing') renderIdle();
     else if (s.stage === 'review') renderReview();
@@ -80,10 +81,10 @@ export function addItemView(rerender, goTo) {
   function renderIdle() {
     root.appendChild(
       el('div', { class: 'hint' }, [
-        '💡 Tipp: Kleidungsstück am besten ',
-        el('strong', {}, 'ungetragen'),
-        ' und vor einem glatten Hintergrund fotografieren. ',
-        'Getragene Fotos kannst du im nächsten Schritt mit „Bearbeiten" bereinigen.',
+        tr('💡 Tipp: Kleidungsstück am besten '),
+        el('strong', {}, tr('ungetragen')),
+        tr(' und vor einem glatten Hintergrund fotografieren. '),
+        tr('Getragene Fotos kannst du im nächsten Schritt mit „Bearbeiten" bereinigen.'),
       ])
     );
 
@@ -100,8 +101,8 @@ export function addItemView(rerender, goTo) {
 
     root.appendChild(
       el('div', { class: 'row' }, [
-        el('button', { class: 'with-icon', onclick: () => kameraInput.click(), disabled: s.busy }, [icon('camera'), 'Foto aufnehmen']),
-        el('button', { class: 'with-icon', onclick: () => galerieInput.click(), disabled: s.busy }, [icon('gallery'), 'Aus Galerie wählen']),
+        el('button', { class: 'with-icon', onclick: () => kameraInput.click(), disabled: s.busy }, [icon('camera'), tr('Foto aufnehmen')]),
+        el('button', { class: 'with-icon', onclick: () => galerieInput.click(), disabled: s.busy }, [icon('gallery'), tr('Aus Galerie wählen')]),
         galerieInput, kameraInput,
       ])
     );
@@ -114,13 +115,13 @@ export function addItemView(rerender, goTo) {
     s.originalFile = file;
     s.stage = 'processing';
     s.busy = true;
-    s.status = 'Schneide Kleidungsstück aus …';
+    s.status = tr('Schneide Kleidungsstück aus …');
     render();
     try {
       const blob = await freistellen(file, (key, current, total) => {
         if (key.startsWith('fetch')) {
           const pct = total ? Math.round((current / total) * 100) : 0;
-          s.status = `Schneide Kleidungsstück aus … ${pct}%`;
+          s.status = tr('Schneide Kleidungsstück aus …') + ` ${pct}%`;
           render();
         }
       });
@@ -132,7 +133,7 @@ export function addItemView(rerender, goTo) {
       console.error(err);
       s.busy = false;
       s.stage = 'idle';
-      s.status = 'Fehler beim Freistellen: ' + (err?.message || err);
+      s.status = tr('Fehler beim Freistellen: ') + (err?.message || err);
       render();
     }
   }
@@ -142,19 +143,19 @@ export function addItemView(rerender, goTo) {
     root.appendChild(previewBox(s.workingBlob));
     root.appendChild(
       el('div', { class: 'row' }, [
-        el('button', { class: 'primary with-icon', onclick: passtSo }, [icon('check'), 'Passt so']),
-        el('button', { class: 'with-icon', onclick: startEditing }, [icon('scissors'), 'Bearbeiten']),
-        el('button', { onclick: reset }, 'Verwerfen'),
+        el('button', { class: 'primary with-icon', onclick: passtSo }, [icon('check'), tr('Passt so')]),
+        el('button', { class: 'with-icon', onclick: startEditing }, [icon('scissors'), tr('Bearbeiten')]),
+        el('button', { onclick: reset }, tr('Verwerfen')),
       ])
     );
     root.appendChild(
-      el('p', { class: 'muted small' }, '„Bearbeiten": Kleidungsstück antippen (Rest wird weggeschnitten) – oder gezielt Kopf/Hände entfernen.')
+      el('p', { class: 'muted small' }, tr('„Bearbeiten": Kleidungsstück antippen (Rest wird weggeschnitten) – oder gezielt Kopf/Hände entfernen.'))
     );
   }
 
   function previewBox(blob) {
     return el('div', { class: 'preview' }, [
-      el('img', { src: blobUrl(blob), class: 'preview-img', alt: 'Freigestelltes Kleidungsstück' }),
+      el('img', { src: blobUrl(blob), class: 'preview-img', alt: tr('Freigestelltes Kleidungsstück') }),
     ]);
   }
 
@@ -170,21 +171,21 @@ export function addItemView(rerender, goTo) {
     render(); // baut Editor-DOM einmalig auf
 
     // SAM lazy laden + Bild einlesen
-    setEditStatus('Wird vorbereitet …');
+    setEditStatus(tr('Wird vorbereitet …'));
     try {
       if (!s.samModule) s.samModule = await import('../sam.js');
       const size = await s.samModule.samSetImage(s.originalFile, (p) => {
         if (p && p.status === 'progress' && p.total) {
           const pct = Math.round((p.loaded / p.total) * 100);
-          setEditStatus(`Wird vorbereitet … ${pct}%`);
+          setEditStatus(tr('Wird vorbereitet …') + ` ${pct}%`);
         }
       });
       s.samSize = size;
-      setEditStatus('Bereit.');
+      setEditStatus(tr('Bereit.'));
       setEditReady(true);
     } catch (err) {
       console.error(err);
-      setEditStatus('SAM konnte nicht geladen werden: ' + (err?.message || err));
+      setEditStatus(tr('SAM konnte nicht geladen werden: ') + (err?.message || err));
     }
   }
 
@@ -194,18 +195,18 @@ export function addItemView(rerender, goTo) {
     const wrap = el('div', { class: 'edit-wrap' }, [canvas]);
 
     const status = el('p', { class: 'status' }, '…');
-    const undoBtn = el('button', { onclick: undo, disabled: true }, '↶ Rückgängig');
+    const undoBtn = el('button', { onclick: undo, disabled: true }, tr('↶ Rückgängig'));
 
     s.editEls = { status, undoBtn, ready: false, busy: false };
 
-    root.appendChild(el('div', { class: 'hint' }, 'Klicke an, was gelöscht werden soll.'));
+    root.appendChild(el('div', { class: 'hint' }, tr('Klicke an, was gelöscht werden soll.')));
     root.appendChild(wrap);
     root.appendChild(status);
     root.appendChild(
       el('div', { class: 'row' }, [
         undoBtn,
-        el('button', { class: 'primary', onclick: fertig }, '✔ Fertig'),
-        el('button', { onclick: () => { s.stage = 'review'; render(); } }, 'Abbrechen'),
+        el('button', { class: 'primary', onclick: fertig }, tr('✔ Fertig')),
+        el('button', { onclick: () => { s.stage = 'review'; render(); } }, tr('Abbrechen')),
       ])
     );
 
@@ -229,14 +230,14 @@ export function addItemView(rerender, goTo) {
   async function doSegment(prompt) {
     if (s.editEls.busy) return;
     s.editEls.busy = true;
-    setEditStatus('Entferne…');
+    setEditStatus(tr('Entferne…'));
     try {
       const { mask, width, height } = await s.samModule.samSegment(prompt);
       applyMask(mask, width, height);
-      setEditStatus('Entfernt. Weiter klicken oder „Fertig".');
+      setEditStatus(tr('Entfernt. Weiter klicken oder „Fertig".'));
     } catch (err) {
       console.error(err);
-      setEditStatus('Fehler bei der Segmentierung: ' + (err?.message || err));
+      setEditStatus(tr('Fehler bei der Segmentierung: ') + (err?.message || err));
     } finally {
       s.editEls.busy = false;
     }
@@ -311,18 +312,18 @@ export function addItemView(rerender, goTo) {
     root.appendChild(previewBox(s.workingBlob));
 
     if (s.busy && !s.colors.length) {
-      root.appendChild(el('p', { class: 'status' }, 'Farben werden analysiert…'));
+      root.appendChild(el('p', { class: 'status' }, tr('Farben werden analysiert…')));
     }
 
     const taggingWrap = el('div', { class: 'tagform' });
     root.appendChild(taggingWrap);
 
-    const saveBtn = el('button', { class: 'primary with-icon', onclick: speichern }, [icon('check'), 'Speichern']);
+    const saveBtn = el('button', { class: 'primary with-icon', onclick: speichern }, [icon('check'), tr('Speichern')]);
     const pflichtHint = el('p', { class: 'muted small' }, '');
     const updateSave = () => {
       const ok = istVollstaendig(s);
       saveBtn.disabled = s.busy || !ok;
-      pflichtHint.textContent = ok ? '' : 'Bitte alle Felder ausfüllen.';
+      pflichtHint.textContent = ok ? '' : tr('Bitte alle Felder ausfüllen.');
     };
     mountTagForm(taggingWrap, s, updateSave);
 
@@ -330,7 +331,7 @@ export function addItemView(rerender, goTo) {
     root.appendChild(
       el('div', { class: 'row' }, [
         saveBtn,
-        el('button', { disabled: s.busy, onclick: reset }, 'Verwerfen'),
+        el('button', { disabled: s.busy, onclick: reset }, tr('Verwerfen')),
       ])
     );
     updateSave();

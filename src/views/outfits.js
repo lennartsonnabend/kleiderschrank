@@ -9,6 +9,7 @@ import {
 import { bewerteOutfitDetail } from '../outfitEngine.js';
 import { outfitTile } from '../outfitTile.js';
 import { icon } from '../icons.js';
+import { t as tr } from '../i18n.js';
 
 export function outfitsView(rerender, goTo) {
   const root = el('div', { class: 'view' });
@@ -51,11 +52,11 @@ export function outfitsView(rerender, goTo) {
       });
       root.appendChild(inp);
       root.appendChild(
-        el('button', { class: 'fab with-icon', onclick: () => inp.click() }, [icon('camera'), 'Getragenen Look hochladen'])
+        el('button', { class: 'fab with-icon', onclick: () => inp.click() }, [icon('camera'), tr('Getragenen Look hochladen')])
       );
     } else {
       root.appendChild(
-        el('button', { class: 'fab with-icon', onclick: openBuilder }, [icon('plus'), 'Outfit erstellen'])
+        el('button', { class: 'fab with-icon', onclick: openBuilder }, [icon('plus'), tr('Outfit erstellen')])
       );
     }
     root.appendChild(modalHost);
@@ -65,13 +66,13 @@ export function outfitsView(rerender, goTo) {
     return el('button', {
       class: 'pill with-icon' + (mode === id ? ' active' : ''),
       onclick: () => { mode = id; render(); },
-    }, [icon(iconName), label]);
+    }, [icon(iconName), tr(label)]);
   }
 
   // ---------- Looks ----------
   function renderLooks() {
     if (!looks.length) {
-      root.appendChild(el('p', { class: 'muted' }, 'Noch keine Looks. Lade unten ein Foto deines getragenen Outfits hoch.'));
+      root.appendChild(el('p', { class: 'muted' }, tr('Noch keine Looks. Lade unten ein Foto deines getragenen Outfits hoch.')));
       return;
     }
     const grid = el('div', { class: 'looks-grid' });
@@ -83,8 +84,8 @@ export function outfitsView(rerender, goTo) {
   function lookCard(l) {
     return el('div', { class: 'look-card' }, [
       el('div', { class: 'oc-top' }, [
-        el('button', { class: 'icon-pill active', title: 'Look entfernen', onclick: () => entferneLook(l) }, [icon('heartFill')]),
-        el('button', { class: 'icon-pill', title: 'In den Kalender', onclick: () => lookZumKalender(l) }, [icon('calendar')]),
+        el('button', { class: 'icon-pill active', title: tr('Look entfernen'), onclick: () => entferneLook(l) }, [icon('heartFill')]),
+        el('button', { class: 'icon-pill', title: tr('In den Kalender'), onclick: () => lookZumKalender(l) }, [icon('calendar')]),
       ]),
       el('div', { class: 'look-imgwrap' }, [el('img', { src: blobUrl(l.bild), class: 'look-img', alt: '' })]),
     ]);
@@ -102,7 +103,7 @@ export function outfitsView(rerender, goTo) {
   }
 
   async function entferneLook(l) {
-    if (!confirm('Möchtest du den Look wirklich löschen?')) return;
+    if (!confirm(tr('Möchtest du den Look wirklich löschen?'))) return;
     await deleteLook(l.id);
     looks = looks.filter((x) => x.id !== l.id);
     render();
@@ -111,7 +112,7 @@ export function outfitsView(rerender, goTo) {
   // ---------- Favoriten (nur Outfits; Looks erscheinen nur im Looks-Tab) ----------
   function renderFavoriten() {
     if (!favoriten.length) {
-      root.appendChild(el('p', { class: 'muted' }, 'Noch keine Favoriten. Speichere Outfits mit dem Herz-Icon.'));
+      root.appendChild(el('p', { class: 'muted' }, tr('Noch keine Favoriten. Speichere Outfits mit dem Herz-Icon.')));
       return;
     }
     const list = el('div', { class: 'outfit-list' });
@@ -121,8 +122,8 @@ export function outfitsView(rerender, goTo) {
       list.appendChild(
         el('div', { class: 'outfit-card' }, [
           el('div', { class: 'oc-top' }, [
-            el('button', { class: 'icon-pill active', title: 'Favorit entfernen', onclick: () => unfavorisieren(o) }, [icon('heartFill')]),
-            el('button', { class: 'icon-pill', title: 'In den Kalender', onclick: () => zumKalender(o.garmentIds) }, [icon('calendar')]),
+            el('button', { class: 'icon-pill active', title: tr('Favorit entfernen'), onclick: () => unfavorisieren(o) }, [icon('heartFill')]),
+            el('button', { class: 'icon-pill', title: tr('In den Kalender'), onclick: () => zumKalender(o.garmentIds) }, [icon('calendar')]),
           ]),
           outfitTile(teile),
         ])
@@ -131,7 +132,7 @@ export function outfitsView(rerender, goTo) {
   }
 
   async function unfavorisieren(o) {
-    if (!confirm('Das Outfit wirklich entfernen?')) return;
+    if (!confirm(tr('Das Outfit wirklich entfernen?'))) return;
     await putOutfit({ ...o, favorit: false });
     favoriten = favoriten.filter((x) => x.id !== o.id);
     render();
@@ -164,12 +165,12 @@ export function outfitsView(rerender, goTo) {
   function renderBuilder() {
     const gewaehlt = garments.filter((g) => selection.has(g.id));
     const card = el('div', { class: 'overlay-card builder-modal', onclick: (e) => e.stopPropagation() }, [
-      el('button', { class: 'overlay-close', title: 'Schließen', onclick: closeBuilder }, [icon('close')]),
-      el('div', { class: 'overlay-titel' }, 'Outfit erstellen'),
+      el('button', { class: 'overlay-close', title: tr('Schließen'), onclick: closeBuilder }, [icon('close')]),
+      el('div', { class: 'overlay-titel' }, tr('Outfit erstellen')),
     ]);
 
     if (!garments.length) {
-      card.appendChild(el('p', { class: 'muted' }, 'Noch keine Kleidungsstücke im Schrank.'));
+      card.appendChild(el('p', { class: 'muted' }, tr('Noch keine Kleidungsstücke im Schrank.')));
       modalHost.replaceChildren(el('div', { class: 'overlay-backdrop', onclick: closeBuilder }, [card]));
       return;
     }
@@ -183,24 +184,24 @@ export function outfitsView(rerender, goTo) {
           el('div', { class: 'oc-top' }, [
             el('button', {
               class: 'icon-pill', disabled: !vollstaendig,
-              title: vollstaendig ? 'Als Favorit speichern' : 'Erst vervollständigen (Oberteil, Unterteil, Schuhe)',
+              title: vollstaendig ? tr('Als Favorit speichern') : tr('Erst vervollständigen (Oberteil, Unterteil, Schuhe)'),
               onclick: () => favorisieren(gewaehlt.map((g) => g.id)),
             }, [icon('heart')]),
-            el('button', { class: 'icon-pill', title: 'In den Kalender', onclick: () => zumKalender(gewaehlt.map((g) => g.id)) }, [icon('calendar')]),
+            el('button', { class: 'icon-pill', title: tr('In den Kalender'), onclick: () => zumKalender(gewaehlt.map((g) => g.id)) }, [icon('calendar')]),
           ]),
           outfitTile(gewaehlt),
         ])
       );
       card.appendChild(bewertungsBox(verdikt, hinweise));
     } else {
-      card.appendChild(el('p', { class: 'muted small' }, 'Tippe unten Teile an – pro Kategorie ein Teil.'));
+      card.appendChild(el('p', { class: 'muted small' }, tr('Tippe unten Teile an – pro Kategorie ein Teil.')));
     }
 
     // Kategorie-Slider (Jacken, Oberteile, Unterteile, Schuhe, Accessoires)
     for (const grp of GRUPPEN) {
       const teile = garments.filter((g) => grp.cats.includes(grobOf(g)));
       if (!teile.length) continue;
-      card.appendChild(el('div', { class: 'builder-gruppe-titel' }, grp.label));
+      card.appendChild(el('div', { class: 'builder-gruppe-titel' }, tr(grp.label)));
       const slider = el('div', { class: 'builder-slider' });
       for (const g of teile) {
         const selied = selection.has(g.id);
@@ -236,7 +237,7 @@ export function outfitsView(rerender, goTo) {
     await putOutfit({ id: makeId(), garmentIds, favorit: true, angelegtAm: new Date().toISOString() });
     closeBuilder(); // Overlay schließen
     await load();   // Favoriten neu laden + rendern
-    flash('Als Favorit gespeichert.');
+    flash(tr('Als Favorit gespeichert.'));
   }
 
   const VERDIKT = {
@@ -249,11 +250,11 @@ export function outfitsView(rerender, goTo) {
   function bewertungsBox(verdikt, hinweise) {
     const v = VERDIKT[verdikt] || VERDIKT.ok;
     const box = el('div', { class: 'bewertung ' + v.cls });
-    box.appendChild(el('div', { class: 'bewertung-titel with-icon' }, [icon(v.icon), v.text]));
+    box.appendChild(el('div', { class: 'bewertung-titel with-icon' }, [icon(v.icon), tr(v.text)]));
     if (hinweise.length) {
       box.appendChild(el('ul', { class: 'bewertung-tipps' }, hinweise.map((h) => el('li', {}, h))));
     } else {
-      box.appendChild(el('div', { class: 'muted small' }, 'Keine Einwände – gute Kombi!'));
+      box.appendChild(el('div', { class: 'muted small' }, tr('Keine Einwände – gute Kombi!')));
     }
     return box;
   }

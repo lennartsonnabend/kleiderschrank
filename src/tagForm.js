@@ -6,6 +6,7 @@ import { FARB_PALETTE } from './palette.js';
 import { kategorieTree, grobkategorieFor } from './kategorien.js';
 import { getGarderobe } from './settings.js';
 import { icon } from './icons.js';
+import { t as tr } from './i18n.js';
 
 const WAERME_ICON = { 1: 'sun', 2: 'cloudSun', 3: 'snow' };
 
@@ -119,19 +120,19 @@ export function mountTagForm(container, s, onChange) {
     const box = el('div', { class: 'tagging' });
     box.appendChild(buildKategorieField());
     box.appendChild(buildWetterField());
-    box.appendChild(feld('Für welchen Anlass?', chipSelect(FORMAL_STUFEN, () => s.formalitaet, (v) => { s.formalitaet = v; })));
-    box.appendChild(feld('Muster', chipSelect(MUSTER_OPTIONEN, () => s.muster, (v) => { s.muster = v; })));
-    box.appendChild(feld('Passform', chipSelect(PASSFORM_STUFEN, () => s.passform, (v) => { s.passform = v; })));
+    box.appendChild(feld(tr('Für welchen Anlass?'), chipSelect(FORMAL_STUFEN, () => s.formalitaet, (v) => { s.formalitaet = v; })));
+    box.appendChild(feld(tr('Muster'), chipSelect(MUSTER_OPTIONEN, () => s.muster, (v) => { s.muster = v; })));
+    box.appendChild(feld(tr('Passform'), chipSelect(PASSFORM_STUFEN, () => s.passform, (v) => { s.passform = v; })));
     container.appendChild(box);
 
     nameInput = el('input', {
-      type: 'text', class: 'name-input', placeholder: 'Name des Kleidungsstücks',
+      type: 'text', class: 'name-input', placeholder: tr('Name des Kleidungsstücks'),
       value: s.nameManual ? s.name : defaultName(s),
       oninput: (e) => { s.name = e.target.value; s.nameManual = true; },
     });
     container.appendChild(
       el('label', { class: 'field name-field' }, [
-        el('span', { class: 'field-label' }, 'Name'),
+        el('span', { class: 'field-label' }, tr('Name')),
         nameInput,
       ])
     );
@@ -140,7 +141,7 @@ export function mountTagForm(container, s, onChange) {
   }
 
   function swatchEl(c, size = 'chip') {
-    const base = { class: 'swatch ' + (size === 'tiny' ? 'tiny' : ''), title: c.name };
+    const base = { class: 'swatch ' + (size === 'tiny' ? 'tiny' : ''), title: tr(c.name) };
     base.style = c.bunt
       ? { background: 'conic-gradient(red, orange, yellow, green, blue, violet, red)' }
       : { background: c.hex };
@@ -149,7 +150,7 @@ export function mountTagForm(container, s, onChange) {
 
   function buildColorEditor(refreshName) {
     const box = el('div', { class: 'colors' });
-    box.appendChild(el('div', { class: 'field-label' }, 'Farben'));
+    box.appendChild(el('div', { class: 'field-label' }, tr('Farben')));
 
     const chips = el('div', { class: 'color-chips' });
     const flyoutBtns = new Map();
@@ -162,16 +163,16 @@ export function mountTagForm(container, s, onChange) {
         chips.appendChild(
           el('span', { class: 'color-chip' }, [
             el('button', {
-              class: 'chip-main', type: 'button', title: 'Farbe ändern',
+              class: 'chip-main', type: 'button', title: tr('Farbe ändern'),
               onclick: () => { s.flyoutOpen = true; render(); },
-            }, [swatchEl(c), el('span', { class: 'chip-name' }, c.name)]),
-            el('button', { class: 'chip-x', title: 'entfernen', onclick: () => removeColor(c) }, '×'),
+            }, [swatchEl(c), el('span', { class: 'chip-name' }, tr(c.name))]),
+            el('button', { class: 'chip-x', title: tr('entfernen'), onclick: () => removeColor(c) }, '×'),
           ])
         );
       }
       chips.appendChild(
         el('button', { class: 'add-color', onclick: () => { s.flyoutOpen = !s.flyoutOpen; render(); } },
-          s.flyoutOpen ? '✓ Fertig' : '+ Farbe')
+          s.flyoutOpen ? tr('✓ Fertig') : tr('+ Farbe'))
       );
     };
 
@@ -200,7 +201,7 @@ export function mountTagForm(container, s, onChange) {
         const btn = el('button', {
           class: 'flyout-item' + (isSelected(c) ? ' selected' : ''),
           onclick: () => toggleColor(c),
-        }, [swatchEl(c, 'tiny'), el('span', {}, c.name)]);
+        }, [swatchEl(c, 'tiny'), el('span', {}, tr(c.name))]);
         flyoutBtns.set(c.name, btn);
         fly.appendChild(btn);
       }
@@ -211,13 +212,13 @@ export function mountTagForm(container, s, onChange) {
 
   function buildWetterField() {
     const waermeOpts = WAERME_STUFEN.map(([v, l]) => [v, l, WAERME_ICON[v]]);
-    const wrap = feld('Für welches Wetter?', chipSelect(waermeOpts, () => s.waerme, (v) => { s.waerme = v; }));
+    const wrap = feld(tr('Für welches Wetter?'), chipSelect(waermeOpts, () => s.waerme, (v) => { s.waerme = v; }));
     // Regentauglich als Toggle-Chip
     const regen = el('button', {
       type: 'button',
       class: 'chip-choice' + (s.regentauglich ? ' active' : ''),
       onclick: (e) => { s.regentauglich = !s.regentauglich; e.currentTarget.classList.toggle('active', s.regentauglich); onChange?.(); },
-    }, [icon('rain'), el('span', {}, 'regentauglich')]);
+    }, [icon('rain'), el('span', {}, tr('regentauglich'))]);
     wrap.appendChild(el('div', { class: 'chips regen-row' }, [regen]));
     return wrap;
   }
@@ -231,7 +232,7 @@ export function mountTagForm(container, s, onChange) {
           type: 'button',
           class: 'chip-choice' + (String(val) === String(getVal() ?? '') ? ' active' : ''),
           onclick: () => { setVal(val); draw(); onChange?.(); },
-        }, ic ? [icon(ic), el('span', {}, label)] : [el('span', {}, label)])
+        }, ic ? [icon(ic), el('span', {}, tr(label))] : [el('span', {}, tr(label))])
       ));
     };
     draw();
@@ -243,11 +244,11 @@ export function mountTagForm(container, s, onChange) {
   }
 
   function buildKategorieField() {
-    const wrap = el('label', { class: 'field' }, [el('span', { class: 'field-label' }, 'Kategorie')]);
+    const wrap = el('label', { class: 'field' }, [el('span', { class: 'field-label' }, tr('Kategorie'))]);
     const btn = el('button', {
       class: 'kat-select' + (s.kategorie ? '' : ' empty'), type: 'button',
       onclick: () => { s.katFlyoutOpen = !s.katFlyoutOpen; render(); },
-    }, s.kategorie ? s.kategorie : '– Kategorie wählen –');
+    }, s.kategorie ? tr(s.kategorie) : tr('– Kategorie wählen –'));
     wrap.appendChild(btn);
 
     if (s.katFlyoutOpen) {
@@ -267,7 +268,7 @@ export function mountTagForm(container, s, onChange) {
               : () => selectKategorie(nodePath),
           }, [
             el('span', { class: 'kat-caret' }, hasChildren ? (s.katExpanded.has(key) ? '▾' : '▸') : ''),
-            el('span', {}, node.label),
+            el('span', {}, tr(node.label)),
           ]);
           fly.appendChild(row);
           if (hasChildren && s.katExpanded.has(key)) renderNodes(node.children, nodePath, depth + 1);

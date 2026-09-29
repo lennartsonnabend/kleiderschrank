@@ -7,12 +7,16 @@ import { calendarView } from './views/calendarView.js';
 import { ootdView } from './views/ootd.js';
 import { settingsView } from './views/settingsView.js';
 import { onboardingView } from './views/onboarding.js';
-import { istOnboarded } from './settings.js';
+import { istOnboarded, getLang, setLang } from './settings.js';
 import { enableDragScroll } from './dragScroll.js';
 import { icon } from './icons.js';
+import { t as tr } from './i18n.js';
 
 const app = document.getElementById('app');
 enableDragScroll(app); // Ziehen mit der Maus scrollt (Desktop)
+// Steuerung ausserhalb des Geraets (oben rechts): Wiki + Sprachwechsel
+const langBtn = makeLangButton();
+document.body.appendChild(el('div', { class: 'app-controls' }, [makeWikiButton(), langBtn]));
 
 // "hinzufuegen" ist bewusst NICHT in der Leiste – erreichbar über den
 // festverankerten Button im Schrank.
@@ -22,6 +26,7 @@ const TABS = [
   { id: 'outfits', label: 'Outfits', icon: 'heart', iconFill: 'heartFill' },
   { id: 'kalender', label: 'Kalender', icon: 'calendar', iconFill: 'calendarFill' },
 ];
+// 'OOTD'/'Outfits' bleiben in beiden Sprachen gleich – kein t() nötig.
 
 let current = 'ootd';
 
@@ -67,11 +72,54 @@ function render(params = {}) {
         onclick: () => goTo(t.id),
       }, [
         icon(t.id === highlight ? t.iconFill : t.icon, 'tab-icon'),
-        el('span', { class: 'tab-label' }, t.label),
+        el('span', { class: 'tab-label' }, tr(t.label)),
       ])
     )
   );
   app.appendChild(tabbar);
+}
+
+// Wiki-/Info-Button oben rechts: kurzes Erklaer-Popup
+function makeWikiButton() {
+  return el('button', { class: 'wiki-btn', title: tr('Wie funktioniert die App?'), onclick: showWiki }, [icon('info'), el('span', {}, 'Wiki')]);
+}
+
+// Sprach-Button rechts neben Wiki: zeigt die AKTUELLE Sprache als Flagge,
+// Klick schaltet zwischen Deutsch und Englisch um und rendert neu.
+function makeLangButton() {
+  const b = el('button', { class: 'lang-btn', title: 'Deutsch / English', onclick: toggleLang });
+  paintLang(b);
+  return b;
+}
+
+function paintLang(b) {
+  b.replaceChildren(icon(getLang() === 'en' ? 'flagEN' : 'flagDE'));
+}
+
+function toggleLang() {
+  setLang(getLang() === 'en' ? 'de' : 'en');
+  paintLang(langBtn);
+  render();
+}
+
+function showWiki() {
+  closeWiki();
+  const card = el('div', { class: 'overlay-card wiki-card', onclick: (e) => e.stopPropagation() }, [
+    el('button', { class: 'overlay-close', title: tr('Schließen'), onclick: closeWiki }, [icon('close')]),
+    el('div', { class: 'overlay-titel' }, tr('Wie funktioniert die App?')),
+    el('p', {}, [el('b', {}, tr('Kleiderschrank füllen: ')), tr('Kleidung fotografieren, freistellen lassen und danach Kategorie, Farben, Wetter, Anlass, Muster und Passform festlegen.')]),
+    el('p', {}, [el('b', {}, tr('Vorschläge: ')), tr('Die App stellt täglich Outfits zusammen – nach Anlass (Alltag, Chic, Freizeit) und passend zum Wetter (Temperatur und Regen).')]),
+    el('p', {}, [el('b', {}, tr('Merken und planen: ')), tr('Outfits favorisieren, eigene Looks hochladen und einzelnen Tagen im Kalender zuordnen.')]),
+    el('p', {}, [el('b', {}, tr('Daten: ')), tr('Alle Daten bleiben lokal im Browser gespeichert. Lediglich der Standort kann für regengerechte Outfits abgerufen werden.')]),
+  ]);
+  const backdrop = el('div', { class: 'overlay-backdrop', onclick: closeWiki }, [card]);
+  backdrop.id = 'wiki-overlay';
+  document.body.appendChild(backdrop);
+}
+
+function closeWiki() {
+  const o = document.getElementById('wiki-overlay');
+  if (o) o.remove();
 }
 
 render();

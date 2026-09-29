@@ -10,6 +10,7 @@ import { outfitTile } from '../outfitTile.js';
 import { icon } from '../icons.js';
 import { getWetter, wetterInfo } from '../weather.js';
 import { getShowWeather, getWetterVorschlaege, getTempUnit } from '../settings.js';
+import { t as tr } from '../i18n.js';
 
 const ANZAHL = 3;
 const sig = (o) => (o ? o.garmentIds.slice().sort().join('|') : '');
@@ -32,14 +33,15 @@ export function ootdView(rerender, goTo) {
 
   async function load() {
     garments = await getAllGarments();
-    try {
-      const w = await getWetter();
-      tagesWetter = wetterFromTemp(w.temp);
-    } catch {
-      tagesWetter = 'MILD';
-    }
     compute();
     render();
+    // Wetter im Hintergrund nachladen; blockiert die Anzeige nicht
+    getWetter()
+      .then((w) => {
+        const neu = wetterFromTemp(w.temp);
+        if (neu !== tagesWetter) { tagesWetter = neu; compute(); render(); }
+      })
+      .catch(() => {});
   }
 
   function compute() {
@@ -84,18 +86,18 @@ export function ootdView(rerender, goTo) {
     if (fehltGlobal.length) {
       root.appendChild(
         el('p', { class: 'muted' }, [
-          'Für Vorschläge fehlt noch: ' + fehltGlobal.join(', ') + '. ',
-          el('a', { href: '#', onclick: (e) => (e.preventDefault(), goTo('schrank')) }, 'Teile hinzufügen →'),
+          tr('Für Vorschläge fehlt noch: ') + fehltGlobal.map(tr).join(', ') + '. ',
+          el('a', { href: '#', onclick: (e) => (e.preventDefault(), goTo('schrank')) }, tr('Teile hinzufügen →')),
         ])
       );
       return;
     }
 
     for (const reihe of reihen) {
-      root.appendChild(el('h3', { class: 'ootd-reihe-titel' }, reihe.label));
+      root.appendChild(el('h3', { class: 'ootd-reihe-titel' }, tr(reihe.label)));
       if (!reihe.slots.length) {
         root.appendChild(
-          el('p', { class: 'muted small ootd-reihe-leer' }, `Noch keine Kombination – markiere Teile als „${reihe.label}".`)
+          el('p', { class: 'muted small ootd-reihe-leer' }, tr('Noch keine Kombination – markiere Teile als „{0}".', tr(reihe.label)))
         );
         continue;
       }
@@ -109,12 +111,12 @@ export function ootdView(rerender, goTo) {
   function buildCard(reihe, outfit, i) {
     return el('div', { class: 'outfit-card ootd-card' }, [
       el('div', { class: 'oc-top' }, [
-        iconPill('heart', 'Als Favorit speichern', (e) => favorisieren(outfit.garmentIds, e.currentTarget)),
-        iconPill('calendar', 'In den Kalender', () => zumKalender(outfit.garmentIds)),
+        iconPill('heart', tr('Als Favorit speichern'), (e) => favorisieren(outfit.garmentIds, e.currentTarget)),
+        iconPill('calendar', tr('In den Kalender'), () => zumKalender(outfit.garmentIds)),
       ]),
       outfitTile(outfit.teile),
       el('div', { class: 'oc-bottom' }, [
-        iconPill('refresh', 'Anderes Outfit', () => reloadSlot(reihe, i)),
+        iconPill('refresh', tr('Anderes Outfit'), () => reloadSlot(reihe, i)),
       ]),
     ]);
   }
@@ -123,7 +125,7 @@ export function ootdView(rerender, goTo) {
   function wetterKachel() {
     const ikon = el('span', { class: 'wetter-icon' }, [icon('cloud')]);
     const temp = el('span', { class: 'wetter-temp' }, '…');
-    const text = el('span', { class: 'wetter-text' }, 'Wetter wird geladen');
+    const text = el('span', { class: 'wetter-text' }, tr('Wetter wird geladen'));
     const regen = el('span', { class: 'wetter-regen' }, '');
     const tile = el('div', { class: 'wetter-tile' }, [
       ikon,
@@ -135,11 +137,11 @@ export function ootdView(rerender, goTo) {
         ikon.replaceChildren(icon(info.icon));
         temp.textContent = getTempUnit() === 'F' ? `${Math.round(w.temp * 9 / 5 + 32)}°F` : `${w.temp}°C`;
         text.textContent = w.ort ? `${info.text} · ${w.ort}` : info.text;
-        if (w.regen != null) regen.replaceChildren(icon('rain'), `${w.regen}% Regen`);
+        if (w.regen != null) regen.replaceChildren(icon('rain'), `${w.regen}% ` + tr('Regen'));
       })
       .catch(() => {
         temp.textContent = '–';
-        text.textContent = 'Wetter nicht verfügbar';
+        text.textContent = tr('Wetter nicht verfügbar');
       });
     return tile;
   }
@@ -150,10 +152,10 @@ export function ootdView(rerender, goTo) {
     const t = new Date();
     const iso = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
     const body = el('div', { class: 'heute-body' }, el('span', { class: 'muted small' }, '…'));
-    const tile = el('div', { class: 'heute-tile' }, [el('span', { class: 'heute-label' }, 'Heute'), body]);
+    const tile = el('div', { class: 'heute-tile' }, [el('span', { class: 'heute-label' }, tr('Heute')), body]);
     const klickbarMachen = () => {
       tile.classList.add('klickbar');
-      tile.title = 'Zum Kalender';
+      tile.title = tr('Zum Kalender');
       tile.onclick = () => goTo('kalender', { openDate: iso });
     };
     ladeHeute()
@@ -169,10 +171,10 @@ export function ootdView(rerender, goTo) {
           body.replaceChildren(el('img', { src: blobUrl(res.look.bild), class: 'heute-look', alt: '' }));
           klickbarMachen();
         } else {
-          body.replaceChildren(el('span', { class: 'muted small' }, 'Merk dir Outfits vor'));
+          body.replaceChildren(el('span', { class: 'muted small' }, tr('Merk dir Outfits vor')));
         }
       })
-      .catch(() => body.replaceChildren(el('span', { class: 'muted small' }, 'Merk dir Outfits vor')));
+      .catch(() => body.replaceChildren(el('span', { class: 'muted small' }, tr('Merk dir Outfits vor'))));
     return tile;
   }
 
@@ -202,7 +204,7 @@ export function ootdView(rerender, goTo) {
   async function favorisieren(garmentIds, btn) {
     await putOutfit({ id: makeId(), garmentIds, favorit: true, angelegtAm: new Date().toISOString() });
     if (btn) { btn.replaceChildren(icon('heartFill')); btn.classList.add('active'); }
-    flash('Als Favorit gespeichert.');
+    flash(tr('Als Favorit gespeichert.'));
   }
 
   async function zumKalender(garmentIds) {
